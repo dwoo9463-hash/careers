@@ -43,37 +43,7 @@ SYSTEM_PROMPT = """
 - [기술/트렌드 변화]: 예전에는 어떤 기술이나 방식을 썼지만, '지금 요즘 시장'에서는 어떤 툴과 언어(스택)로 완전히 넘어갔는지 구체적인 명칭을 대며 비교하라. (폭풍 검색을 한 것처럼 최신 트렌드 반영)
 - [전공/학벌/포트폴리오]: 전공 일치 여부(필수/무관), 포트폴리오 중요도(상/중/하)를 평가하고, 합격하는 포트폴리오의 필수 구성 요소를 적어라.
 - [나이/성별]: 신입 합격 안정권 나이, 마지노선 나이를 숫자로 적고, 현장의 성비 분위기와 그에 따른 현실적 조언을 솔직하게 적어라.
-- [자격증]: 취업에 결정적 타격을 주는 '합격 프리패스 자격증'과 따봤자 아무도 안 알아주는 '시간 낭비 자격증'을 정확한 자격증 이름(예: SQLD, 정보처리기사, 컴활 등)을 대며 구분하라.
+- [자격증]: 절대 "관련 자격증이 있으면 좋습니다" 식으로 뭉뚱그려 말하지 마라. 해당 직무에서 실무진이 진짜로 인정하는 '구체적인 자격증의 정확한 명칭'을 최소 3개 이상 반드시 리스트업하라. (예: 회계 직무라면 단순 '회계 자격증'이 아니라 전산세무 1/2급, 전산회계 1/2급, ERP 정보관리사, 재경관리사 등으로 정확히 명시). 취업 프리패스가 되는 '필수/우대 자격증'과, 이력서 칸 채우기용 '시간 낭비 자격증'을 명확히 구분하여 이유와 함께 설명하라.
 
 5. 직무 역량 강화 솔루션 (즉시 실행 가능한 3단계)
-- 뻔한 소리 금지. 오늘 당장 방구석에서 시작할 수 있는 가장 현실적이고 강력한 스펙업 행동 3가지를 구체적인 프로젝트 주제나 활동 이름과 함께 제시하라.
-"""
-
-# 3. API 연결
-client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-
-if "messages" not in st.session_state:
-    st.session_state.messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-
-# 4. 채팅 화면
-for message in st.session_state.messages:
-    if message["role"] != "system":
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
-
-if prompt := st.chat_input("분석할 직무를 입력하세요 (예: 백엔드 개발자, 브랜드 마케터, 인사HR)"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(f"### 🔍 분석 대상: {prompt}")
-
-    with st.chat_message("assistant"):
-        with st.spinner("방대한 채용 데이터와 최신 트렌드를 긁어모아 상세 리포트를 작성 중입니다... (시간이 조금 걸릴 수 있습니다)"):
-            chat_completion = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=st.session_state.messages,
-                temperature=0.2, # 한자 발생 확률을 극단적으로 낮추기 위해 온도(랜덤성)를 0.2로 설정
-                max_tokens=4000
-            )
-            msg = chat_completion.choices[0].message.content
-            st.markdown(msg)
-    st.session_state.messages.append({"role": "assistant", "content": msg})
+- 뻔한 소
