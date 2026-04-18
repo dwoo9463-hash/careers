@@ -3,8 +3,8 @@ from groq import Groq
 
 # 1. 페이지 설정
 st.set_page_config(page_title="커리어 실전 분석 시스템", page_icon="🎯", layout="wide")
-st.title("🎯 커리어분석마스터_한국고용협회")
-st.markdown("#### \"가장 상세하고 냉혹한 직무 리포트\"")
+st.title("🎯 커리어 실전 분석 시스템 (PRO)")
+st.markdown("#### \"글자 수 제한 없음. 현직자가 털어놓는 가장 상세하고 냉혹한 직무 리포트\"")
 
 # 2. 타협 없는 극한의 디테일 + 한자 완벽 차단 프롬프트
 SYSTEM_PROMPT = """
@@ -46,4 +46,34 @@ SYSTEM_PROMPT = """
 - [자격증]: 절대 "관련 자격증이 있으면 좋습니다" 식으로 뭉뚱그려 말하지 마라. 해당 직무에서 실무진이 진짜로 인정하는 '구체적인 자격증의 정확한 명칭'을 최소 3개 이상 반드시 리스트업하라. (예: 회계 직무라면 단순 '회계 자격증'이 아니라 전산세무 1/2급, 전산회계 1/2급, ERP 정보관리사, 재경관리사 등으로 정확히 명시). 취업 프리패스가 되는 '필수/우대 자격증'과, 이력서 칸 채우기용 '시간 낭비 자격증'을 명확히 구분하여 이유와 함께 설명하라.
 
 5. 직무 역량 강화 솔루션 (즉시 실행 가능한 3단계)
-- 뻔한 소
+- 뻔한 소리 금지. 오늘 당장 방구석에서 시작할 수 있는 가장 현실적이고 강력한 스펙업 행동 3가지를 구체적인 프로젝트 주제나 활동 이름과 함께 제시하라.
+"""
+
+# 3. API 연결
+client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+
+if "messages" not in st.session_state:
+    st.session_state.messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+
+# 4. 채팅 화면
+for message in st.session_state.messages:
+    if message["role"] != "system":
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+if prompt := st.chat_input("분석할 직무를 입력하세요 (예: 백엔드 개발자, 브랜드 마케터, 인사HR)"):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(f"### 🔍 분석 대상: {prompt}")
+
+    with st.chat_message("assistant"):
+        with st.spinner("방대한 채용 데이터와 최신 트렌드를 긁어모아 상세 리포트를 작성 중입니다... (시간이 조금 걸릴 수 있습니다)"):
+            chat_completion = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=st.session_state.messages,
+                temperature=0.2, 
+                max_tokens=4000
+            )
+            msg = chat_completion.choices[0].message.content
+            st.markdown(msg)
+    st.session_state.messages.append({"role": "assistant", "content": msg})
