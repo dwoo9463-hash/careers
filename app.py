@@ -61,12 +61,17 @@ if prompt := st.chat_input("분석할 직무를 입력하세요 (예: 백엔드 
 
     with st.chat_message("assistant"):
         with st.spinner("가짜 정보를 걸러내고 팩트 기반의 상세 리포트를 작성 중입니다..."):
-            chat_completion = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=st.session_state.messages,
-                temperature=0.0, # 창의성을 죽이고 지시사항을 기계적으로 따르도록 설정
-                max_tokens=4000
-            )
-            msg = chat_completion.choices[0].message.content
-            st.markdown(msg)
-    st.session_state.messages.append({"role": "assistant", "content": msg})
+            try:
+                # 에러가 발생할 수 있는 구간을 try-except로 묶음
+                chat_completion = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=st.session_state.messages,
+                    temperature=0.0,
+                    max_tokens=4000
+                )
+                msg = chat_completion.choices[0].message.content
+                st.markdown(msg)
+                st.session_state.messages.append({"role": "assistant", "content": msg})
+            except Exception as e:
+                # 에러 발생 시 빨간 창 대신 부드러운 경고 메시지 출력
+                st.warning("⏱️ 질문이 너무 빨리 몰렸거나 무료 사용량을 초과했습니다. 딱 1분만 기다렸다가 다시 질문해주세요!")
