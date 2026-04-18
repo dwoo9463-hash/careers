@@ -4,7 +4,7 @@ from groq import Groq
 # 1. 페이지 설정
 st.set_page_config(page_title="커리어 실전 분석 시스템_한국고용협회", page_icon="🎯", layout="wide")
 st.title("🎯 커리어 실전 분석 시스템 (PRO)")
-st.markdown("#### \"글자 수 제한 없음. 현직자가 털어놓는 가장 상세하고 냉혹한 직무 리포트\"")
+st.markdown("#### \"직무와 커리어에 대한 답변을 한방에 드립니다! \"")
 
 # 2. 타협 없는 극한의 디테일 프롬프트
 SYSTEM_PROMPT = """
