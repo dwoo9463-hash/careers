@@ -46,4 +46,34 @@ SYSTEM_PROMPT = """
 - [자격증]: 취업에 결정적 타격을 주는 '합격 프리패스 자격증'과 따봤자 아무도 안 알아주는 '시간 낭비 자격증'을 정확한 자격증 이름(예: SQLD, 정보처리기사, 컴활 등)을 대며 구분하라.
 
 5. 직무 역량 강화 솔루션 (즉시 실행 가능한 3단계)
-- 뻔한 소리 금지. 오늘 당장 방구석에서 시작할 수 있는 가장 현실적이고 강력한 스펙업 행동 3가지를 구체
+- 뻔한 소리 금지. 오늘 당장 방구석에서 시작할 수 있는 가장 현실적이고 강력한 스펙업 행동 3가지를 구체적인 프로젝트 주제나 활동 이름과 함께 제시하라.
+"""
+
+# 3. API 연결
+client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+
+if "messages" not in st.session_state:
+    st.session_state.messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+
+# 4. 채팅 화면
+for message in st.session_state.messages:
+    if message["role"] != "system":
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+if prompt := st.chat_input("분석할 직무를 입력하세요 (예: 백엔드 개발자, 브랜드 마케터, 인사HR)"):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(f"### 🔍 분석 대상: {prompt}")
+
+    with st.chat_message("assistant"):
+        with st.spinner("방대한 채용 데이터와 최신 트렌드를 긁어모아 상세 리포트를 작성 중입니다... (시간이 조금 걸릴 수 있습니다)"):
+            chat_completion = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=st.session_state.messages,
+                temperature=0.2, # 한자 발생 확률을 극단적으로 낮추기 위해 온도(랜덤성)를 0.2로 설정
+                max_tokens=4000
+            )
+            msg = chat_completion.choices[0].message.content
+            st.markdown(msg)
+    st.session_state.messages.append({"role": "assistant", "content": msg})
